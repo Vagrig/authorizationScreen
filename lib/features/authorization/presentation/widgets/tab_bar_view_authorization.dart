@@ -40,36 +40,42 @@ class _TabBarViewAuthorizationState extends State<TabBarViewAuthorization> with 
         SizedBox(
           width: double.maxFinite,
           height: 162,
-          child: TabBarView(controller: _tabBarController, children: [
-            _buildLoginTextField(),
-            _buildSignUpTextField(),
-          ]),
-        ),
-        const SizedBox(height: 30),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Container(
-            decoration: BoxDecoration(
-                color: Theme.of(context).secondaryHeaderColor,
-                borderRadius: const BorderRadius.all(Radius.circular(20))),
-            width: double.maxFinite,
-            height: 40,
-            child: TabBar(
-              labelColor: AppColors.permanentWhite,
-              unselectedLabelColor: Theme.of(context).hintColor,
-              onTap: _onTap,
-              overlayColor: MaterialStateProperty.all(Theme.of(context).backgroundColor),
-              indicator: const BoxDecoration(
-                  color: AppColors.permanentBlue, borderRadius: BorderRadius.all(Radius.circular(20))),
-              controller: _tabBarController,
-              tabs: const [
-                Tab(child: Text(AppTitles.login)),
-                Tab(child: Text(AppTitles.signUp)),
-              ],
-            ),
+          child: TabBarView(
+            controller: _tabBarController,
+            children: [
+              _buildLoginTextField(),
+              _buildSignUpTextField(),
+            ],
           ),
         ),
+        const SizedBox(height: 30),
+        _buildTabBar(context),
       ],
+    );
+  }
+
+  Widget _buildTabBar(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      child: Container(
+        decoration: BoxDecoration(
+            color: Theme.of(context).secondaryHeaderColor, borderRadius: const BorderRadius.all(Radius.circular(20))),
+        width: double.maxFinite,
+        height: 40,
+        child: TabBar(
+          labelColor: AppColors.permanentWhite,
+          unselectedLabelColor: Theme.of(context).hintColor,
+          onTap: _onTap,
+          overlayColor: MaterialStateProperty.all(Theme.of(context).backgroundColor),
+          indicator:
+              const BoxDecoration(color: AppColors.permanentBlue, borderRadius: BorderRadius.all(Radius.circular(20))),
+          controller: _tabBarController,
+          tabs: const [
+            Tab(child: Text(AppTitles.login)),
+            Tab(child: Text(AppTitles.signUp)),
+          ],
+        ),
+      ),
     );
   }
 
@@ -107,12 +113,7 @@ class _TabBarViewAuthorizationState extends State<TabBarViewAuthorization> with 
           cursorColor: Theme.of(context).primaryColor,
           style: TextStyle(color: Theme.of(context).hintColor),
           decoration: InputDecoration(
-            contentPadding: const EdgeInsets.only(
-              left: 16,
-              right: 32,
-              bottom: 12,
-              top: 12,
-            ),
+            contentPadding: const EdgeInsets.only(left: 16, right: 32, bottom: 12, top: 12),
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(color: Theme.of(context).primaryColor),
               borderRadius: const BorderRadius.all(
@@ -156,53 +157,56 @@ class _TabBarViewAuthorizationState extends State<TabBarViewAuthorization> with 
   void didChangeDependencies() {
     super.didChangeDependencies();
     final state = context.read<AuthorizationController>();
-    _reactionDisposer = reaction((_) => state.state == AuthorizationStates.success, (bool loggedIn) {
-      if (loggedIn && state.currentUser != null) {
-        Navigator.of(context).push(MaterialPageRoute(builder: (_) => UserScreen(user: state.currentUser!)));
-      }
-    });
-    _reactionDisposer = reaction((_) => state.state == AuthorizationStates.signInError, (bool isError) {
-      if (isError) {
-        Future.delayed(Duration.zero).whenComplete(() => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              duration: const Duration(milliseconds: 1200),
-              backgroundColor: Theme.of(context).backgroundColor,
-              content: const SnackBarAuthorization(
-                title: AppTitles.error,
-                subtitle: AppTitles.loginErrorSubtitle,
-                leading: Icons.cancel,
-                color: AppColors.permanentRed,
-              ),
-            )));
-      }
-    });
-    _reactionDisposer = reaction((_) => state.state == AuthorizationStates.signUpError, (bool isError) {
-      if (isError) {
-        Future.delayed(Duration.zero).whenComplete(() => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              duration: const Duration(milliseconds: 1200),
-              backgroundColor: Theme.of(context).backgroundColor,
-              content: const SnackBarAuthorization(
-                title: AppTitles.error,
-                subtitle: AppTitles.signUpErrorSubtitle,
-                leading: Icons.cancel,
-                color: AppColors.permanentRed,
-              ),
-            )));
-      }
-    });
-    _reactionDisposer = reaction((_) => state.state == AuthorizationStates.userCreated, (bool userCreated) {
-      if (userCreated) {
-        Future.delayed(Duration.zero).whenComplete(() => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              duration: const Duration(milliseconds: 1200),
-              backgroundColor: Theme.of(context).backgroundColor,
-              content: const SnackBarAuthorization(
-                title: AppTitles.wellDone,
-                subtitle: AppTitles.successfulSubtitle,
-                leading: Icons.check_circle_rounded,
-                color: AppColors.permanentGreen,
-              ),
-            )));
-      }
-    });
+    if (!state.reactionSetUp) {
+      state.reactionSetUp = true;
+      _reactionDisposer = reaction((_) => state.state == AuthorizationStates.success, (bool loggedIn) {
+        if (loggedIn && state.currentUser != null) {
+          Navigator.of(context).push(MaterialPageRoute(builder: (_) => UserScreen(user: state.currentUser!)));
+        }
+      });
+      _reactionDisposer = reaction((_) => state.state == AuthorizationStates.signInError, (bool isError) {
+        if (isError) {
+          Future.delayed(Duration.zero).whenComplete(() => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                duration: const Duration(milliseconds: 1200),
+                backgroundColor: Theme.of(context).backgroundColor,
+                content: const SnackBarAuthorization(
+                  title: AppTitles.error,
+                  subtitle: AppTitles.loginErrorSubtitle,
+                  leading: Icons.cancel,
+                  color: AppColors.permanentRed,
+                ),
+              )));
+        }
+      });
+      _reactionDisposer = reaction((_) => state.state == AuthorizationStates.signUpError, (bool isError) {
+        if (isError) {
+          Future.delayed(Duration.zero).whenComplete(() => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                duration: const Duration(milliseconds: 1200),
+                backgroundColor: Theme.of(context).backgroundColor,
+                content: const SnackBarAuthorization(
+                  title: AppTitles.error,
+                  subtitle: AppTitles.signUpErrorSubtitle,
+                  leading: Icons.cancel,
+                  color: AppColors.permanentRed,
+                ),
+              )));
+        }
+      });
+      _reactionDisposer = reaction((_) => state.state == AuthorizationStates.userCreated, (bool userCreated) {
+        if (userCreated) {
+          Future.delayed(Duration.zero).whenComplete(() => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                duration: const Duration(milliseconds: 1200),
+                backgroundColor: Theme.of(context).backgroundColor,
+                content: const SnackBarAuthorization(
+                  title: AppTitles.wellDone,
+                  subtitle: AppTitles.successfulSubtitle,
+                  leading: Icons.check_circle_rounded,
+                  color: AppColors.permanentGreen,
+                ),
+              )));
+        }
+      });
+    }
   }
 
   @override

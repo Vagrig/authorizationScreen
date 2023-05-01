@@ -11,10 +11,11 @@ class AuthorizationController = _AuthorizationController with _$AuthorizationCon
 abstract class _AuthorizationController with Store {
   static const usersBoxName = 'Users';
   static const currentUserBoxName = 'CurrentUser';
+  UserModel? currentUser;
+  bool reactionSetUp = false;
+
   @observable
   AuthorizationStates state = AuthorizationStates.initial;
-
-  UserModel? currentUser;
 
   @action
   Future<void> signIn({required String name, required String password}) async {

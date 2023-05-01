@@ -11,25 +11,27 @@ class AuthorizationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
-      body: Column(
-        children: [
-          Stack(
-            children: [
-              CustomPaint(
-                size: Size(MediaQuery.of(context).size.width, 258),
-                painter: WavePainter(context),
-              ),
-              Positioned(left: 24, top: 54, child: Image.asset(AppIcons.logo)),
-            ],
-          ),
-          const SizedBox(height: 92),
-          const TabBarViewAuthorization(),
-          const SizedBox(height: 52),
-          Text(
-            AppTitles.forgotPassword,
-            style: TextStyle(color: Theme.of(context).cardColor),
-          )
-        ],
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Stack(
+              children: [
+                CustomPaint(
+                  size: Size(MediaQuery.of(context).size.width, 258),
+                  painter: WavePainter(context),
+                ),
+                Positioned(left: 24, top: 54, child: Image.asset(AppIcons.logo)),
+              ],
+            ),
+            const SizedBox(height: 92),
+            const TabBarViewAuthorization(),
+            const SizedBox(height: 52),
+            Text(
+              AppTitles.forgotPassword,
+              style: TextStyle(color: Theme.of(context).cardColor),
+            )
+          ],
+        ),
       ),
     );
   }
